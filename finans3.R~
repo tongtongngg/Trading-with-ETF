@@ -1,0 +1,111 @@
+################################
+## Set the working directory
+
+## In RStudio use conveniently the menu "Session->Set Working 
+## Directory->To Source File Location" 
+## In R use only "/" for separating in paths (i.e. no backslash)
+setwd("Replace with path to where the project files are")
+
+
+################################
+## Import the data
+
+## Read the finans1_data.csv file containing the data
+wr <- read.table("finans1_data.csv", header=TRUE, sep=",", as.is=TRUE)
+
+
+#############################
+## Overview of the data
+
+## Dimension of HE (number of rows and columns)
+dim(wr)
+## Column names
+names(wr)
+## The first rows
+head(wr)
+## The last rows
+tail(wr)
+## Default summary
+summary(wr)
+## Another summary function also including the data type
+str(wr)
+
+
+
+############################
+## Descriptive analysis of selected variables
+## b)
+sum(!is.na(wr$AGG))
+mean(wr$AGG)
+sd(wr$AGG)
+## ...
+
+## Alternatively, to run a "function" on the selected columns you
+## can use the "apply"-command or wrap it in a for-loop. 
+## For futher info see ?apply.
+
+
+###########################
+## d)
+## Determination of the correlation between ETFs 
+## and determination of portfolio
+cov(wr[ ,c("AGG","VAW","IWN","SPY","EWG","EWW")])
+
+
+###########################
+## Model validation
+## f)
+## Validation of a model for AGG
+qqnorm(wr$AGG, main='Validation of normal distribution assumption for AGG',
+       xlab='z-scores', ylab='Weekly returns')
+qqline(wr$AGG)
+## Do the same for the other ETFs
+
+
+###########################
+## Calculations of the 95% confidence intervals
+## g)
+## t-quantile for the confidence interval for the mean of AGG, 
+## since the degrees of freedom for the mean of AGG are 453 
+qt(0.975, 453)
+
+## Determination of the confidence interval for the mean parameter in a
+## normally distributed random sample
+
+## The 95% confidence interval for AGG
+t.test(wr$AGG, conf.level=0.95)$conf.int
+## Do the same for the other ETFs
+
+
+################################
+## 
+## Import data finans2_data.csv
+etfSum <- read.table("data/finans2_data.csv",header=TRUE, sep=",")
+str(etfSum)
+
+## k)
+## Determine the empirical correlation for the selected variables and
+## examine the dependencies
+cor(etfSum_analyse[,2:7], use="everything", method="pearson")
+
+## First trim the square around the plot. See more on ?par
+par(mar=c(3,3,2,1),mgp=c(2,0.7,0))
+par(mfrow=c(1,1))
+plot(etfSum_analyse$Volatility, etfSum_analyse$CVaR, pch=16, cex=0.7,
+     xlab="Volatility [Weekly Pct.]",
+     ylab="Conditional Value at Risk [Weekly Pct.]",  cex.lab=0.8,
+     main="Relation between Volatility and CVaR", cex.main=0.8)
+
+
+## For calculations of the correlation between Geo.mean and maxTuW
+## k)
+cov(etfSum_analyse$Geo.mean, etfSum_analyse$maxTuW)
+var(etfSum_analyse$Geo.mean)
+var(etfSum_analyse$maxTuW)
+
+
+#########################
+## l)
+## A simple linear regression
+lm1 <- lm(Geo.mean~EXPLANATORY_VARIABLE, etfSum_analyse)
+summary(lm1)
